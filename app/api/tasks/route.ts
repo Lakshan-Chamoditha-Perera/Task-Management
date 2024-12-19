@@ -1,11 +1,25 @@
 import { NextResponse, type NextRequest } from "next/server";
-import prismaClient from "@/db"; 
+import prismaClient from "@/db";
 
 export async function GET(request: NextRequest) {
     try {
-        console.log("Fetching all tasks");
-        const tasks = await prismaClient.task.findMany();
+        const url = new URL(request.url);
+        const status = url.searchParams.get("status");
 
+        let tasks;
+        if (status === "completed") {
+            tasks = await prismaClient.task.findMany({
+                where: { isCompleted: true },
+            });
+        } else if (status === "incomplete") {
+            tasks = await prismaClient.task.findMany({
+                where: { isCompleted: false },
+            });
+        } else {
+            tasks = await prismaClient.task.findMany();
+        }
+
+        console.log(`Fetching ${status || "all"} tasks`);
         return NextResponse.json({ data: tasks }, { status: 200 });
     } catch (error) {
         console.error("Error fetching tasks:", error);
