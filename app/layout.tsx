@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
-
+import { ApiProvider } from "@reduxjs/toolkit/query/react";
+import { StoreProvider } from "./store/StoreProvider";
 
 export const metadata: Metadata = {
   title: "Task Management App",
@@ -13,10 +14,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body>
-        {children}
-      </body>
-    </html>
+    <StoreProvider>
+      <html lang="en">
+        <body>{children}</body>
+      </html>
+    </StoreProvider>
   );
 }

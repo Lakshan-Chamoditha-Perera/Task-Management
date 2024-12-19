@@ -1,7 +1,7 @@
 "use client";
 import { FaTrash } from "react-icons/fa";
 import React from "react";
-import { Task } from "@/types/Task";
+import { Task } from "@/app/types/Task";
 import { IoCheckmarkDoneCircle } from "react-icons/io5";
 import axios from "axios";
 
