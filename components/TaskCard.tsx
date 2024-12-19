@@ -2,6 +2,8 @@
 import { FaTrash } from "react-icons/fa";
 import React from "react";
 import { Task } from "@/types/Task";
+import { IoCheckmarkDoneCircle } from "react-icons/io5";
+import axios from "axios";
 
 interface TaskItemProps {
     task: Task;
@@ -12,6 +14,26 @@ export const TaskCard: React.FC<TaskItemProps> = ({
     task: { id, title, isCompleted, priority, createdAt },
     deleteTask,
 }) => {
+
+    const markAsCompleted = async (id: number) => {
+        try {
+            const updatedTaskData = {
+                isCompleted: true,
+            };
+
+            const response = await axios.put(`/api/tasks/${id}`, updatedTaskData);
+
+            if (response.status === 200) {
+                alert("Task marked as completed!");
+            } else {
+                alert("Failed to mark task as completed");
+            }
+        } catch (error) {
+            console.error("Error updating task state:", error);
+            alert("Error updating task state");
+        }
+    };
+
     return (
         <div className="max-w-[330px] sm:max-w-[300px] bg-gradient-to-br from-white to-gray-100 border shadow-md hover:shadow-xl transition duration-300 ease-in-out rounded-lg overflow-hidden">
             <div key={id} className="p-4">
@@ -44,6 +66,16 @@ export const TaskCard: React.FC<TaskItemProps> = ({
                 >
                     <FaTrash />
                 </button>
+                {/* mark as completed */}
+                {
+                    !isCompleted ? <button
+                        className="text-green-500 p-2 rounded-full hover:bg-green-500 hover:text-white transition duration-300 ease-in-out"
+                        onClick={() => markAsCompleted(id)}
+                        title="Mark as Completed"
+                    >
+                        <IoCheckmarkDoneCircle />
+                    </button> : <></>
+                }
             </div>
         </div>
     );
