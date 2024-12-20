@@ -5,7 +5,7 @@ export async function GET(
     req: Request,
     { params }: { params: { id: string } }
 ) {
-    const { id } = await params;
+    const { id } = params;
 
     try {
         const parsedId = parseInt(id, 10);
@@ -34,7 +34,7 @@ export async function DELETE(
     req: Request,
     { params }: { params: { id: string } }
 ) {
-    const { id } = await params;
+    const { id } = params;
 
     try {
         const parsedId = parseInt(id, 10);
@@ -67,7 +67,7 @@ export async function PUT(
     req: Request,
     { params }: { params: { id: string } }
 ) {
-    const { id } = await params;
+    const { id } = params;
     const taskData = await req.json();
 
     try {
