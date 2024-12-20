@@ -8,69 +8,83 @@ import axios from "axios";
 
 export default function Home() {
   const [taskList, setTaskList] = useState<Task[]>([]);
-  const [error, setError] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState<string>("all");
 
   useEffect(() => {
-    const fetchTasks = async () => {
-      try {
-        const response = await axios.get<{ data: Task[] }>(
-          `/api/tasks?status=${statusFilter}`
-        );
-        setTaskList(response.data.data);
-      } catch (error) {
-        console.error("Error fetching tasks:", error);
-        setError("Failed to load tasks. Please try again later.");
-      }
-    };
-
     fetchTasks();
   }, [statusFilter]);
 
+  const fetchTasks = async () => {
+    try {
+      const response = await axios.get<{ data: Task[] }>(
+        `/api/tasks?status=${statusFilter}`
+      );
+      setTaskList(response.data.data);
+    } catch (error) {
+      console.error("Error fetching tasks:", error);
+      const errorMessage =
+        error instanceof Error ? error.message : "Failed to load tasks.";
+      alert(`Error fetching tasks: ${errorMessage}`);
+    }
+  };
+
   const deleteTask = (id: number) => {
     axios
-      .delete(`/api/tasks/${id}`, { params: { id: id } })
+      .delete(`/api/tasks/${id}`, { params: { id } })
       .then(() => {
-        setTaskList((prevList) => prevList.filter((task) => task.id !== id));
+        alert(`Task with id ${id} deleted successfully.`);
+        fetchTasks();
       })
       .catch((error) => {
-        console.error(`Error deleting task with id ${id}:`, error);
-        setError("Failed to delete task. Please try again.");
+        const errorMessage =
+          error instanceof Error ? error.message : "Failed to delete task.";
+        alert(`Error deleting task with id ${id}: ${errorMessage}`);
       });
   };
+
+  const updateTask = (task: Task) => {
+    axios
+      .post(
+        `/api/tasks/${task.id}`,
+        { ...task, isCompleted: true },
+        { params: { id: task.id } }
+      )
+      .then(() => {
+        alert(`Task with id ${task.id} updated successfully.`);
+        fetchTasks();
+      })
+      .catch((error) => {
+        const errorMessage =
+          error instanceof Error ? error.message : "Failed to update task.";
+        alert(`Error updating task with id ${task.id}: ${errorMessage}`);
+      });
+  };
+
+  const buttonClass = (filter: string) =>
+    `px-4 py-2 rounded ${
+      statusFilter === filter ? "bg-blue-500 text-white" : "bg-gray-200"
+    }`;
 
   return (
     <>
       <Header />
 
-      {error && <div className="text-red-500 text-center my-4">{error}</div>}
-
       <div className="mb-4 text-center border-b border-gray-200">
         <button
           onClick={() => setStatusFilter("all")}
-          className={`px-4 py-2 rounded ${
-            statusFilter === "all" ? "bg-blue-500 text-white" : "bg-gray-200"
-          }`}
+          className={buttonClass("all")}
         >
           All Tasks
         </button>
         <button
           onClick={() => setStatusFilter("completed")}
-          className={`px-4 py-2 rounded ${
-            statusFilter === "completed"
-              ? "bg-blue-500 text-white"
-              : "bg-gray-200"
-          }`}
+          className={buttonClass("completed")}
         >
           Completed Tasks
         </button>
         <button
           onClick={() => setStatusFilter("incomplete")}
-          className={`px-4 py-2 rounded ${
-            statusFilter === "incomplete"
-              ? "bg-blue-500 text-white"
-              : "bg-gray-200"
-          }`}
+          className={buttonClass("incomplete")}
         >
           Incomplete Tasks
         </button>
@@ -79,7 +93,12 @@ export default function Home() {
       <div className="px-5 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 p-2 gap-y-10 gap-x-4 mb-16">
         {taskList.length > 0 ? (
           taskList.map((task) => (
-            <TaskCard key={task.id} task={task} deleteTask={deleteTask} />
+            <TaskCard
+              key={task.id}
+              task={task}
+              deleteTask={deleteTask}
+              updateTask={updateTask}
+            />
           ))
         ) : (
           <p className="text-center text-gray-500 col-span-full">

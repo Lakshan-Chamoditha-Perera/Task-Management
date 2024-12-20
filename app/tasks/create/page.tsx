@@ -15,9 +15,6 @@ const CreateTask = () => {
     createdAt: new Date().toISOString(),
   });
 
-  const [error, setError] = useState<string | null>(null);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
-
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [searchedTask, setSearchedTask] = useState<Task | null>(null);
 
@@ -36,9 +33,10 @@ const CreateTask = () => {
 
   const saveTask = async () => {
     try {
-      const response = await axios.post("/api/tasks", formData);
+      const response = await axios.post("/api/tasks", formData, {
+        params: { id: formData.id },
+      });
       if (response.status === 201) {
-        setSuccessMessage("Task created successfully!");
         setFormData({
           id: 0,
           title: "",
@@ -47,29 +45,32 @@ const CreateTask = () => {
           createdAt: new Date().toISOString(),
         });
         setSearchedTask(null);
+        alert("Task created successfully!");
       }
     } catch (err) {
-      setError("Failed to create task. Please try again.");
-      console.error("Error:", err);
+      alert("Failed to create task. Please try again.");
+      console.log("Error:", err);
     }
   };
 
-
-
   const updateTask = async () => {
     if (!searchedTask) {
-      setError("No task found to update.");
+      alert("No task found to update.");
       return;
     }
 
     try {
       const response = await axios.post(
         `/api/tasks/${searchedTask.id}`,
-        { ...formData, id: searchedTask.id }
+        formData,
+        {
+          params: { id: searchedTask.id },
+        }
       );
       if (response.status === 200) {
-        setSuccessMessage("Task updated successfully!");
-        setSearchedTask(null);
+        alert("Task updated successfully!");
+
+        // Reset form data
         setFormData({
           id: 0,
           title: "",
@@ -77,22 +78,22 @@ const CreateTask = () => {
           priority: "low",
           createdAt: new Date().toISOString(),
         });
+        setSearchedTask(null);
       }
     } catch (err) {
-      setError("Failed to update task. Please try again.");
+      alert("Failed to update task. Please try again.");
       console.error("Error:", err);
     }
   };
 
+  
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!formData.title) {
-      setError("Task title is required.");
+      alert("Task title is required.");
       return;
     }
-
-    setError(null);
 
     if (searchedTask) {
       updateTask();
@@ -102,8 +103,10 @@ const CreateTask = () => {
   };
 
   const handleSearch = async () => {
-    if (!searchQuery || !isNaN(Number(searchQuery))) {
+    console.log("searchQuery : ", searchQuery);
+    if (!searchQuery || isNaN(Number(searchQuery))) {
       setSearchedTask(null);
+      alert("Please enter a valid task ID.");
       return;
     }
 
@@ -111,13 +114,15 @@ const CreateTask = () => {
       const response = await axios.get<Task>(`/api/tasks/${searchQuery}`, {
         params: { id: searchQuery },
       });
+      console.log("response : ", response);
       const data = response.data;
       console.log("feched task : ", data);
+      alert("Task found");
       setFormData(data);
       setSearchedTask(data);
     } catch (err: unknown) {
-      setError("No task found with the given ID.");
-      console.error(err);
+      alert("Task not found");
+      console.log("Error:", err);
     }
   };
 
@@ -126,11 +131,6 @@ const CreateTask = () => {
       <h1 className="text-3xl font-bold mb-6">
         {searchedTask ? "Update Task" : "Create a New Task"}
       </h1>
-
-      {error && <div className="text-red-500 mb-4">{error}</div>}
-      {successMessage && (
-        <div className="text-green-500 mb-4">{successMessage}</div>
-      )}
 
       <div className="mb-4 flex justify-end">
         {/* Search bar */}
