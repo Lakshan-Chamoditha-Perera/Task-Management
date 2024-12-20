@@ -111,33 +111,6 @@ const CreateTask = () => {
       setSearchedTask(null);
       return;
     }
-
-    try {
-      await axios
-        .get(`/api/tasks/${searchQuery}`)
-        .then((response) => {
-          const task = response.data;
-          setSearchedTask(task);
-          setFormData(task);
-          setError(null);
-        })
-        .catch((err) => {
-          if (err.response.status === 404) {
-            setSearchedTask(null);
-            setFormData({
-              id: 0,
-              title: "",
-              isCompleted: false,
-              priority: "low",
-              createdAt: new Date().toISOString(),
-            });
-            setError("Task not found.");
-          }
-        });
-    } catch (error) {
-      console.error("Error fetching task:", error);
-      setError("Failed to search task. Please try again.");
-    }
   };
 
   return (
@@ -221,6 +194,7 @@ const CreateTask = () => {
           >
             Completed
           </label>
+
           <input
             type="checkbox"
             name="isCompleted"
