@@ -1,11 +1,8 @@
 import { NextResponse } from "next/server";
 import prismaClient from "@/app/db";
 
-export async function GET(
-    req: Request,
-    { params }: { params: { id: string } }
-) {
-    const { id } = params;
+export async function GET(req: Request, context: { params: { id: string } }) {
+    const { id } = context.params;
 
     try {
         const parsedId = parseInt(id, 10);
@@ -31,10 +28,9 @@ export async function GET(
 }
 
 export async function DELETE(
-    req: Request,
-    { params }: { params: { id: string } }
+    req: Request, context: { params: { id: string } }
 ) {
-    const { id } = params;
+    const { id } = context.params;
 
     try {
         const parsedId = parseInt(id, 10);
@@ -65,9 +61,9 @@ export async function DELETE(
 
 export async function PUT(
     req: Request,
-    { params }: { params: { id: string } }
+    context: { params: { id: string } }
 ) {
-    const { id } = params;
+    const { id } = context.params;
     const taskData = await req.json();
 
     try {
