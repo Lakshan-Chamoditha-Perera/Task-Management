@@ -31,7 +31,6 @@ export async function GET(req: Request) {
 export async function DELETE(req: Request) {
   const { searchParams } = new URL(req.url);
   const id = searchParams.get("id") ?? "";
-  const taskData = await req.json();
 
   try {
     const parsedId = parseInt(id, 10);
