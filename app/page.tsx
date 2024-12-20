@@ -29,7 +29,7 @@ export default function Home() {
 
   const deleteTask = (id: number) => {
     axios
-      .delete(`/api/tasks/${id}`)
+      .delete(`/api/tasks/${id}`, { params: { id: id } })
       .then(() => {
         setTaskList((prevList) => prevList.filter((task) => task.id !== id));
       })

@@ -3,18 +3,11 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
-
-interface TaskType {
-  id: number;
-  title: string;
-  isCompleted: boolean;
-  priority: "low" | "medium" | "high";
-  createdAt: string;
-}
+import { Task } from "@/app/types/Task";
 
 const CreateTask = () => {
   const router = useRouter();
-  const [formData, setFormData] = useState<TaskType>({
+  const [formData, setFormData] = useState<Task>({
     id: 0,
     title: "",
     isCompleted: false,
@@ -26,7 +19,7 @@ const CreateTask = () => {
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const [searchQuery, setSearchQuery] = useState<string>("");
-  const [searchedTask, setSearchedTask] = useState<TaskType | null>(null);
+  const [searchedTask, setSearchedTask] = useState<Task | null>(null);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -61,6 +54,8 @@ const CreateTask = () => {
     }
   };
 
+
+
   const updateTask = async () => {
     if (!searchedTask) {
       setError("No task found to update.");
@@ -68,9 +63,9 @@ const CreateTask = () => {
     }
 
     try {
-      const response = await axios.put(
+      const response = await axios.post(
         `/api/tasks/${searchedTask.id}`,
-        formData
+        { ...formData, id: searchedTask.id }
       );
       if (response.status === 200) {
         setSuccessMessage("Task updated successfully!");
@@ -107,9 +102,22 @@ const CreateTask = () => {
   };
 
   const handleSearch = async () => {
-    if (!searchQuery) {
+    if (!searchQuery || !isNaN(Number(searchQuery))) {
       setSearchedTask(null);
       return;
+    }
+
+    try {
+      const response = await axios.get<Task>(`/api/tasks/${searchQuery}`, {
+        params: { id: searchQuery },
+      });
+      const data = response.data;
+      console.log("feched task : ", data);
+      setFormData(data);
+      setSearchedTask(data);
+    } catch (err: unknown) {
+      setError("No task found with the given ID.");
+      console.error(err);
     }
   };
 
