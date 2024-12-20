@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import prismaClient from "@/app/db";
 
-export async function GET(req: Request, context: { params: { id: string } }) {
+export async function GET(req: Request, context: { params: { id: string; } }) {
     const { id } = context.params;
 
     try {
