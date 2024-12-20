@@ -14,7 +14,7 @@ export default function Home() {
   useEffect(() => {
     const fetchTasks = async () => {
       try {
-        const response = await axios.get(`/api/tasks?status=${statusFilter}`);
+        const response = await axios.get<{ data: Task[] }>(`/api/tasks?status=${statusFilter}`);
         setTaskList(response.data.data);
       } catch (error) {
         console.error("Error fetching tasks:", error);
@@ -46,29 +46,26 @@ export default function Home() {
       <div className="mb-4 text-center border-b border-gray-200">
         <button
           onClick={() => setStatusFilter("all")}
-          className={`px-4 py-2 rounded ${
-            statusFilter === "all" ? "bg-blue-500 text-white" : "bg-gray-200"
-          }`}
+          className={`px-4 py-2 rounded ${statusFilter === "all" ? "bg-blue-500 text-white" : "bg-gray-200"
+            }`}
         >
           All Tasks
         </button>
         <button
           onClick={() => setStatusFilter("completed")}
-          className={`px-4 py-2 rounded ${
-            statusFilter === "completed"
+          className={`px-4 py-2 rounded ${statusFilter === "completed"
               ? "bg-blue-500 text-white"
               : "bg-gray-200"
-          }`}
+            }`}
         >
           Completed Tasks
         </button>
         <button
           onClick={() => setStatusFilter("incomplete")}
-          className={`px-4 py-2 rounded ${
-            statusFilter === "incomplete"
+          className={`px-4 py-2 rounded ${statusFilter === "incomplete"
               ? "bg-blue-500 text-white"
               : "bg-gray-200"
-          }`}
+            }`}
         >
           Incomplete Tasks
         </button>
